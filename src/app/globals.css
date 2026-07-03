@@ -19,5 +19,4 @@ body {
   font-family: var(--font-sans);
   color: var(--sadapay-navy);
   overflow-x: hidden;
-  overflow: auto !important; /* prevent Spline scroll hijack */
 }
