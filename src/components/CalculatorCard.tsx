@@ -13,8 +13,8 @@ import type { FilerStatus, CalculationResult } from '@/lib/types';
 type CalculatorMode = 'usd-to-pkr' | 'pkr-to-usd';
 
 const modeOptions: { value: CalculatorMode; label: string }[] = [
-  { value: 'usd-to-pkr', label: 'USD \u2192 PKR' },
-  { value: 'pkr-to-usd', label: 'PKR \u2192 USD' },
+  { value: 'usd-to-pkr', label: 'USD → PKR' },
+  { value: 'pkr-to-usd', label: 'PKR → USD' },
 ];
 
 function ModeToggle({
@@ -130,7 +130,7 @@ export default function CalculatorCard() {
           Banking Calculator
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Compare USD \u2192 PKR conversion fees
+          Compare USD → PKR conversion fees
         </p>
       </div>
 
@@ -169,7 +169,7 @@ export default function CalculatorCard() {
               <span className="text-lg font-bold text-sadapay-navy">
                 {isReverseMode ? formatPKR(inputAmount) : formatUSD(usdAmount)}
               </span>
-              <span className="text-gray-300">{'\u2192'}</span>
+              <span className="text-gray-300">{'→'}</span>
               <span className="text-gray-500">
                 {isReverseMode ? 'USD' : 'PKR'}
               </span>
