@@ -34,8 +34,8 @@ export default function AmountInput({
       >
         {label}
       </label>
-      <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-sadapay-navy/30 select-none pointer-events-none">
+      <div className="flex items-stretch border-2 border-sadapay-navy/10 focus-within:border-sadapay-navy transition-colors bg-white">
+        <span className="flex items-center px-4 text-2xl font-bold text-sadapay-navy/30 select-none shrink-0">
           {currencyPrefix}
         </span>
         <input
@@ -45,8 +45,7 @@ export default function AmountInput({
           value={displayValue}
           onChange={handleChange}
           placeholder="0.00"
-          className="w-full h-16 pl-14 pr-4 text-2xl font-bold text-sadapay-navy bg-white border-2 border-sadapay-navy/10 focus:border-sadapay-navy focus:outline-none transition-colors placeholder:text-sadapay-navy/20"
-          style={currencyPrefix.length > 1 ? { paddingLeft: `${12 + currencyPrefix.length * 10}px` } : undefined}
+          className="flex-1 h-16 pr-4 text-2xl font-bold text-sadapay-navy bg-transparent focus:outline-none placeholder:text-sadapay-navy/20 min-w-0"
         />
       </div>
     </div>

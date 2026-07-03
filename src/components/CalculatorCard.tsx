@@ -202,13 +202,7 @@ export default function CalculatorCard() {
           {/* Bank Comparison Column */}
           <div className="bg-white border border-gray-200 p-6">
             <BankComparison
-              pkrAmount={result.basePkr}
-              bankMarkup={result.bankMarkup}
-              networkFee={result.networkFee}
-              wht={result.bankWht}
-              total={result.bankTotal}
               savings={result.savings}
-              filerStatus={filerStatus}
               usdAmount={usdAmount}
             />
           </div>
@@ -231,9 +225,9 @@ export default function CalculatorCard() {
       {/* Footer / Disclaimer */}
       <div className="text-center px-4">
         <p className="text-xs text-gray-400 leading-relaxed">
-          Both columns use the same interbank rate. SadaPay charges 6% (+ Rs.55 under Rs.800) international fee + WHT.
-          Traditional bank fees estimated at ~10% total (SadaPay states banks push costs up to 10%).
-          WHT calculated on gross total per FBR rules. Rates indicative only.
+          SadaPay charges 6% (+ Rs.55 under Rs.800) international fee + WHT.
+          SadaPay states traditional banks push cross-border costs up to 10%.
+          WHT on gross total per FBR rules. Rates indicative only.
         </p>
       </div>
     </div>
