@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+:root {
+  --sadapay-navy: #072333;
+  --sadapay-light: #0a2e42;
+  --sadapay-accent: #00b4d8;
+}
+
+@theme inline {
+  --color-sadapay-navy: #072333;
+  --color-sadapay-light: #0a2e42;
+  --color-sadapay-accent: #00b4d8;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", monospace;
+}
+
+body {
+  background: #f5f5f5;
+  font-family: var(--font-sans);
+  color: var(--sadapay-navy);
+}
