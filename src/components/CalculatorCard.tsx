@@ -175,6 +175,30 @@ export default function CalculatorCard() {
             at market rate
           </p>
         )}
+
+        {/* Live conversion display — shown in both modes */}
+        {result && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-center gap-4 text-sm">
+              <span className="text-gray-500">
+                {isReverseMode ? 'PKR' : 'USD'}
+              </span>
+              <span className="text-lg font-bold text-sadapay-navy">
+                {isReverseMode ? formatPKR(inputAmount) : formatUSD(usdAmount)}
+              </span>
+              <span className="text-gray-300">→</span>
+              <span className="text-gray-500">
+                {isReverseMode ? 'USD' : 'PKR'}
+              </span>
+              <span className="text-lg font-bold text-sadapay-navy">
+                {isReverseMode ? formatUSD(usdAmount) : formatPKR(result.sadapayPkr)}
+              </span>
+            </div>
+            <p className="text-xs text-gray-400 text-center mt-1">
+              at {isReverseMode ? 'market' : 'SadaPay'} rate · 1 USD = {effectiveRate.toFixed(2)} PKR
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Results: Side-by-side columns */}
@@ -187,6 +211,7 @@ export default function CalculatorCard() {
               fee={result.sadapayFee}
               wht={result.wht}
               total={result.sadapayTotal}
+              bankMarkup={0}
               filerStatus={filerStatus}
               usdAmount={usdAmount}
             />
