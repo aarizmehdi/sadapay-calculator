@@ -9,7 +9,6 @@ interface BankComparisonProps {
   pkrAmount: number;
   bankMarkup: number;
   networkFee: number;
-  fee: number;
   wht: number;
   total: number;
   savings: number;
@@ -76,7 +75,6 @@ export default function BankComparison({
   pkrAmount,
   bankMarkup,
   networkFee,
-  fee,
   wht,
   total,
   savings,
@@ -126,14 +124,9 @@ export default function BankComparison({
             subtext="1.5% Mastercard/Visa network fee"
           />
           <Row
-            label="International Fee"
-            value={formatPKR(fee)}
-            subtext="6% of base amount"
-          />
-          <Row
             label="Withholding Tax"
             value={formatPKR(wht)}
-            subtext={`${filerStatus === 'filer' ? '5%' : '10%'} on gross (base + all fees) — per FBR`}
+            subtext={`${filerStatus === 'filer' ? '5%' : '10%'} on gross (base + markup + network) — per FBR`}
           />
           <Row label="Total Payable" value={formatPKR(total)} isTotal />
 

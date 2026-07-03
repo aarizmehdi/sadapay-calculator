@@ -205,7 +205,6 @@ export default function CalculatorCard() {
               pkrAmount={result.basePkr}
               bankMarkup={result.bankMarkup}
               networkFee={result.networkFee}
-              fee={result.bankFee}
               wht={result.bankWht}
               total={result.bankTotal}
               savings={result.savings}
@@ -233,7 +232,7 @@ export default function CalculatorCard() {
       <div className="text-center px-4">
         <p className="text-xs text-gray-400 leading-relaxed">
           Both columns use the same interbank rate. SadaPay charges 6% international fee + WHT.
-          Traditional banks add 3% markup + 1.5% network fee + 6% international fee + WHT.
+          Traditional banks consolidate charges into 3.5% markup + 1.5% network fee (5% total) + WHT.
           WHT calculated on gross total per FBR rules. Rates indicative only.
         </p>
       </div>

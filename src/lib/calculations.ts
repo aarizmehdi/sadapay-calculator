@@ -26,12 +26,13 @@ export function formatUSD(amount: number): string {
   }).format(amount);
 }
 
-function calculateWHT(amount: number, filerStatus: FilerStatus): number {
-  const rate = filerStatus === 'filer' ? WHT_FILER : WHT_NONFILER;
-  return amount * rate;
+/** WHT rate based on filer status */
+function whtRate(filerStatus: FilerStatus): number {
+  return filerStatus === 'filer' ? WHT_FILER : WHT_NONFILER;
 }
 
-function calculateIntnlFee(pkrAmount: number): number {
+/** International transaction fee (6%, or Rs.55 + 6% for amounts under Rs.800) */
+function intnlFee(pkrAmount: number): number {
   if (pkrAmount <= INTNL_FEE_THRESHOLD) {
     return INTNL_FEE_FLAT + pkrAmount * INTNL_FEE_RATE;
   }
@@ -39,48 +40,43 @@ function calculateIntnlFee(pkrAmount: number): number {
 }
 
 /**
- * Calculate fee breakdown for both SadaPay and Traditional Bank.
- *
- * Both use the SAME interbank market rate for the base amount.
- * Divergence comes from fees and markups applied below.
+ * Unified calculation — both sides start from identical base_pkr.
  *
  * SadaPay:
- *   Base = USD × interbankRate
- *   International Fee = 6% of Base (per SadaPay SOC)
- *   WHT = 5%/10% of (Base + International Fee)
- *   Total = Base + International Fee + WHT
+ *   basePkr        = USD × interbankRate
+ *   intnlFee       = 6% of basePkr
+ *   wht            = (basePkr + intnlFee) × taxRate
+ *   total          = basePkr + intnlFee + wht
  *
  * Traditional Bank:
- *   Base = USD × interbankRate
- *   Bank Markup = 3% of Base
- *   Network Fee = 1.5% of Base (Mastercard/Visa)
- *   International Fee = 6% of Base
- *   WHT = 5%/10% of (Base + Bank Markup + Network Fee + International Fee)
- *   Total = Base + Bank Markup + Network Fee + International Fee + WHT
+ *   basePkr        = USD × interbankRate  (same)
+ *   bankMarkup     = 3.5% of basePkr
+ *   networkFee     = 1.5% of basePkr
+ *   wht            = (basePkr + bankMarkup + networkFee) × taxRate
+ *   total          = basePkr + bankMarkup + networkFee + wht
+ *
+ * Savings = bankTotal - sadapayTotal
  */
 export function calculateBreakdown(
   usd: number,
   rate: number,
   filerStatus: FilerStatus
 ): CalculationResult {
-  // Both use same interbank rate
+  const rateFn = whtRate(filerStatus);
   const basePkr = usd * rate;
 
   // --- SadaPay ---
-  const sadapayFee = calculateIntnlFee(basePkr);
-  const sadapayWhtBase = basePkr + sadapayFee;
-  const sadapayWht = calculateWHT(sadapayWhtBase, filerStatus);
-  const sadapayTotal = sadapayWhtBase + sadapayWht;
+  const sadapayFee = intnlFee(basePkr);
+  const sadapayGross = basePkr + sadapayFee;
+  const sadapayWht = sadapayGross * rateFn;
+  const sadapayTotal = sadapayGross + sadapayWht;
 
   // --- Traditional Bank ---
   const bankMarkup = basePkr * BANK_MARKUP_RATE;
   const networkFee = basePkr * NETWORK_FEE_RATE;
-  const bankFee = calculateIntnlFee(basePkr);
-  const bankWhtBase = basePkr + bankMarkup + networkFee + bankFee;
-  const bankWht = calculateWHT(bankWhtBase, filerStatus);
-  const bankTotal = bankWhtBase + bankWht;
-
-  const savings = bankTotal - sadapayTotal;
+  const bankGross = basePkr + bankMarkup + networkFee;
+  const bankWht = bankGross * rateFn;
+  const bankTotal = bankGross + bankWht;
 
   return {
     usdAmount: usd,
@@ -91,9 +87,8 @@ export function calculateBreakdown(
     sadapayTotal,
     bankMarkup,
     networkFee,
-    bankFee,
     bankWht,
     bankTotal,
-    savings,
+    savings: bankTotal - sadapayTotal,
   };
 }

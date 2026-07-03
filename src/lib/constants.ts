@@ -1,7 +1,7 @@
-export const INTNL_FEE_RATE = 0.06; // International transaction fee (SadaPay & banks)
-export const INTNL_FEE_FLAT = 55; // Rs. 55 flat for small transactions (under threshold)
-export const INTNL_FEE_THRESHOLD = 800; // Rs. 800 threshold
-export const BANK_MARKUP_RATE = 0.03; // 3% markup banks add on interbank rate
-export const NETWORK_FEE_RATE = 0.015; // 1.5% Mastercard/Visa network fee (banks only)
-export const WHT_FILER = 0.05; // 5% for filers
-export const WHT_NONFILER = 0.10; // 10% for non-filers
+export const INTNL_FEE_RATE = 0.06; // SadaPay: 6% international transaction fee
+export const INTNL_FEE_FLAT = 55;
+export const INTNL_FEE_THRESHOLD = 800;
+export const BANK_MARKUP_RATE = 0.035; // Traditional bank: 3.5% markup
+export const NETWORK_FEE_RATE = 0.015; // Traditional bank: 1.5% network fee
+export const WHT_FILER = 0.05;
+export const WHT_NONFILER = 0.10;
