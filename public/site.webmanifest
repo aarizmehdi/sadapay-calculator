@@ -1,0 +1,16 @@
+{
+  "name": "SadaPay Banking Calculator",
+  "short_name": "SadaPay Calc",
+  "description": "Compare USD to PKR conversion fees with SadaPay vs traditional banks.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#072333",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

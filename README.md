@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SadaPay Banking Calculator
 
-## Getting Started
+A web-based calculator for Pakistani users to compare USD → PKR conversion fees between **SadaPay** and traditional Pakistani banks.
 
-First, run the development server:
+**Live:** https://sadapay-calculator.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Features
+
+- **USD → PKR** conversion with live interbank exchange rate
+- **PKR → USD** reverse conversion
+- **SadaPay fee breakdown**: 6% international fee (+ Rs.55 under Rs.800), Withholding Tax (5% filer / 10% non-filer)
+- **Traditional bank comparison**: estimated 10% total cross-border costs (per SadaPay's published statement)
+- **WHT on gross total**: calculated per FBR rules (Base Amount + all applicable fees)
+- **Filer/Non-Filer toggle**: switches WHT rate between 5% and 10%
+- **Live exchange rate**: fetched server-side via Vercel proxy (bypasses geo-blocking)
+- **Manual rate override**: enter your own exchange rate
+- **Copy results**: one-click copy of the full breakdown
+- **Mobile responsive**: stacks vertically on screens <768px
+- **GSAP animations**: smooth fade/slide transitions
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Animations | GSAP |
+| Exchange Rate | Server-side proxy via `/api/rate` |
+| Deployment | Vercel (auto-CI via GitHub) |
+
+## Exchange Rate Sources
+
+The app fetches USD/PKR rates from multiple sources in order:
+
+1. **localStorage cache** — instant display, refreshes hourly
+2. **Server proxy** (`/api/rate`) — tries open.er-api.com first, falls back to frankfurter.app
+3. **Hardcoded fallback** — 279.50 PKR/USD if all APIs fail
+
+## Fee Calculation Logic
+
+```
+Both columns use the SAME interbank rate as base.
+
+SadaPay:
+  Base Amount = USD × interbankRate
+  International Fee = 6% of Base (or Rs.55 + 6% if under Rs.800)
+  WHT = 5%/10% of (Base + International Fee)
+  Total = Base + International Fee + WHT
+
+Traditional Bank (estimated per SadaPay's statement):
+  Base Amount = USD × interbankRate (same)
+  Bank Markup = 7% of Base
+  Network Fee = 3% of Base
+  WHT = 5%/10% of (Base + Markup + Network Fee)
+  Total = Base + Markup + Network Fee + WHT
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+git clone https://github.com/aarizmehdi/sadapay-calculator.git
+cd sadapay-calculator
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+Every push to `main` auto-deploys to Vercel.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+git push origin main
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Author
 
-## Deploy on Vercel
+**Aariz Mehdi** — [github.com/aarizmehdi](https://github.com/aarizmehdi)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT — feel free to use, modify, and share.
+
+---
+
+*Not affiliated with SadaPay. Rates are indicative only.*
