@@ -225,8 +225,6 @@ export default function CalculatorCard() {
       {/* Footer / Disclaimer */}
       <div className="text-center px-4">
         <p className="text-xs text-gray-400 leading-relaxed">
-          SadaPay charges 6% (+ Rs.55 under Rs.800) international fee + WHT.
-          SadaPay states traditional banks push cross-border costs up to 10%.
           WHT on gross total per FBR rules. Rates indicative only.
         </p>
       </div>

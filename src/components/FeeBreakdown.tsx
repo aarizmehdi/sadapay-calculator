@@ -81,6 +81,7 @@ export default function FeeBreakdown({
 
   return (
     <div className="w-full">
+      <div className="h-0.5 bg-sadapay-navy w-full mb-4" />
       <h3 className="text-xs font-semibold text-sadapay-navy/50 tracking-wide uppercase mb-3">
         SadaPay Fee Breakdown
       </h3>

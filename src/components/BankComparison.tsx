@@ -23,11 +23,20 @@ export default function BankComparison({
         { opacity: 0, scale: 0.95 },
         { opacity: 1, scale: 1, duration: 0.3 }
       );
+      // Subtle pulse on the savings amount
+      gsap.to(badgeRef.current.querySelector('.savings-amount'), {
+        textShadow: '0 0 12px rgba(34,197,94,0.3)',
+        duration: 1.5,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut',
+      });
     }
   }, [savings]);
 
   return (
     <div className="w-full">
+      <div className="h-0.5 bg-red-800/30 w-full mb-4" />
       <h3 className="text-xs font-semibold text-red-800/50 tracking-wide uppercase mb-3">
         Traditional Bank Comparison
       </h3>
@@ -62,7 +71,7 @@ export default function BankComparison({
               <p className="text-xs font-semibold text-green-700 tracking-wide uppercase">
                 You Save
               </p>
-              <p className="text-2xl font-bold text-green-700 font-mono mt-1">
+              <p className="text-2xl font-bold text-green-700 font-mono mt-1 savings-amount">
                 {formatPKR(savings)}
               </p>
               <p className="text-xs text-green-600 mt-1">
@@ -70,12 +79,6 @@ export default function BankComparison({
               </p>
             </div>
           )}
-
-          {/* Footnote */}
-          <p className="text-[10px] text-gray-400 text-center leading-relaxed">
-            SadaPay charges 6% (+ Rs.55 under Rs.800). Banks charge various fees
-            (markup, network, processing) that SadaPay states total up to 10%.
-          </p>
         </div>
       )}
     </div>

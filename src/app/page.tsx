@@ -39,9 +39,19 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-sadapay-navy text-white/40 py-4 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-[10px] tracking-wider uppercase">
-            Not affiliated with SadaPay. For illustrative purposes only.
+        <div className="max-w-4xl mx-auto flex items-center justify-center gap-2">
+          <p className="text-[10px] tracking-wider">
+            Open source by{" "}
+            <a
+              href="https://github.com/aarizmehdi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/60 hover:text-white transition-colors underline underline-offset-2"
+            >
+              aarizmehdi
+            </a>
+            <span className="mx-2">·</span>
+            Not affiliated with SadaPay
           </p>
         </div>
       </footer>
