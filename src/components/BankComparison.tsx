@@ -116,12 +116,12 @@ export default function BankComparison({
           <Row
             label="Bank Markup"
             value={formatPKR(bankMarkup)}
-            subtext="3% markup on interbank rate"
+            subtext="7% — banks push costs up to 10% per SadaPay"
           />
           <Row
             label="Network Fee"
             value={formatPKR(networkFee)}
-            subtext="1.5% Mastercard/Visa network fee"
+            subtext="3% Mastercard/Visa network fee"
           />
           <Row
             label="Withholding Tax"

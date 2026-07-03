@@ -231,8 +231,8 @@ export default function CalculatorCard() {
       {/* Footer / Disclaimer */}
       <div className="text-center px-4">
         <p className="text-xs text-gray-400 leading-relaxed">
-          Both columns use the same interbank rate. SadaPay charges 6% international fee + WHT.
-          Traditional banks consolidate charges into 3.5% markup + 1.5% network fee (5% total) + WHT.
+          Both columns use the same interbank rate. SadaPay charges 6% (+ Rs.55 under Rs.800) international fee + WHT.
+          Traditional bank fees estimated at ~10% total (SadaPay states banks push costs up to 10%).
           WHT calculated on gross total per FBR rules. Rates indicative only.
         </p>
       </div>
