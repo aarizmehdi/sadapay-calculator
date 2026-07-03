@@ -28,41 +28,7 @@ function storeRate(rate: number): void {
   } catch { /* ignore */ }
 }
 
-async function fetchWithTimeout(url: string, ms = 5000): Promise<Response> {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), ms);
-  try {
-    const resp = await fetch(url, { signal: controller.signal });
-    return resp;
-  } finally {
-    clearTimeout(id);
-  }
-}
-
-async function tryFrankfurter(): Promise<number | null> {
-  try {
-    const resp = await fetchWithTimeout('https://api.frankfurter.app/latest?from=USD&to=PKR');
-    if (!resp.ok) return null;
-    const text = await resp.text();
-    // frankfurter sometimes returns HTML when blocked
-    if (text.startsWith('<')) return null;
-    const data = JSON.parse(text);
-    const rate = data.rates?.PKR;
-    return typeof rate === 'number' ? rate : null;
-  } catch { return null; }
-}
-
-async function tryOpenErApi(): Promise<number | null> {
-  try {
-    const resp = await fetchWithTimeout('https://open.er-api.com/v6/latest/USD');
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    const rate = data.rates?.PKR;
-    return typeof rate === 'number' ? rate : null;
-  } catch { return null; }
-}
-
-/** Fetch USD/PKR rate from multiple sources. Falls back to hardcoded rate. */
+/** Fetch USD/PKR rate via server-side proxy (avoids CORS/geo-blocking). */
 export async function fetchExchangeRate(): Promise<ExchangeRateResult> {
   // 1. Check localStorage cache first
   const stored = getStoredRate();
@@ -70,13 +36,21 @@ export async function fetchExchangeRate(): Promise<ExchangeRateResult> {
     return { rate: stored, timestamp: new Date(), source: 'fallback' };
   }
 
-  // 2. Try APIs in order
-  const rate = await tryOpenErApi() || await tryFrankfurter();
+  // 2. Fetch via our own API route (server-side, not affected by client-side blocks)
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const resp = await fetch('/api/rate', { signal: controller.signal });
+    clearTimeout(timeout);
 
-  if (rate && rate > 0) {
-    storeRate(rate);
-    return { rate, timestamp: new Date(), source: 'api' };
-  }
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.rate && typeof data.rate === 'number' && data.rate > 0) {
+        storeRate(data.rate);
+        return { rate: data.rate, timestamp: new Date(), source: 'api' };
+      }
+    }
+  } catch { /* fall through */ }
 
   // 3. All failed — return hardcoded fallback
   return { rate: FALLBACK_RATE, timestamp: new Date(), source: 'fallback' };
