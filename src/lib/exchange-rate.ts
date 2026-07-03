@@ -1,7 +1,7 @@
 export interface ExchangeRateResult {
   rate: number;
   timestamp: Date;
-  source: 'api' | 'fallback' | 'manual';
+  source: 'api' | 'fallback' | 'cache' | 'manual';
 }
 
 const FALLBACK_RATE = 279.50;
@@ -33,7 +33,7 @@ export async function fetchExchangeRate(): Promise<ExchangeRateResult> {
   // 1. Check localStorage cache first
   const stored = getStoredRate();
   if (stored) {
-    return { rate: stored, timestamp: new Date(), source: 'fallback' };
+    return { rate: stored, timestamp: new Date(), source: 'cache' };
   }
 
   // 2. Fetch via our own API route (server-side, not affected by client-side blocks)

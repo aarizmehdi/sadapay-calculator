@@ -39,6 +39,7 @@ export default function FXRateBanner({
     : rateResult?.rate ?? 0;
   const source = rateResult?.source;
   const isFallback = source === 'fallback';
+  const isCached = source === 'cache';
 
   return (
     <div className="w-full p-4 bg-white border border-gray-200">
@@ -76,6 +77,9 @@ export default function FXRateBanner({
               Last updated: {rateResult.timestamp.toLocaleTimeString()}
               {isFallback && (
                 <span className="text-amber-600 ml-2">(fallback rate)</span>
+              )}
+              {isCached && (
+                <span className="text-green-600 ml-2">(cached)</span>
               )}
             </p>
           )}

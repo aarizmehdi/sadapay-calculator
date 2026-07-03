@@ -66,6 +66,8 @@ export default function CalculatorCard() {
           setLoading(false);
           if (result.source === 'fallback') {
             setError(true);
+          } else {
+            setError(false);
           }
         }
       })
