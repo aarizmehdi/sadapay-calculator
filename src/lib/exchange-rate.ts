@@ -4,7 +4,7 @@ export interface ExchangeRateResult {
   source: 'api' | 'fallback' | 'manual';
 }
 
-const FALLBACK_RATE = 279.50; // Fallback rate if API fails
+const FALLBACK_RATE = 279.50;
 const STORAGE_KEY = 'sadapay-last-rate';
 
 function getStoredRate(): number | null {
@@ -13,14 +13,11 @@ function getStoredRate(): number | null {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Use stored rate if it's less than 1 hour old
       if (Date.now() - parsed.timestamp < 3600000) {
         return parsed.rate;
       }
     }
-  } catch {
-    // ignore
-  }
+  } catch { /* ignore */ }
   return null;
 }
 
@@ -28,82 +25,59 @@ function storeRate(rate: number): void {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ rate, timestamp: Date.now() }));
-  } catch {
-    // ignore
+  } catch { /* ignore */ }
+}
+
+async function fetchWithTimeout(url: string, ms = 5000): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), ms);
+  try {
+    const resp = await fetch(url, { signal: controller.signal });
+    return resp;
+  } finally {
+    clearTimeout(id);
   }
 }
 
-export async function fetchExchangeRate(): Promise<ExchangeRateResult> {
-  // Try stored rate first for instant display
-  const storedRate = getStoredRate();
-  if (storedRate) {
-    return {
-      rate: storedRate,
-      timestamp: new Date(),
-      source: 'fallback',
-    };
-  }
-
-  // Try primary API: frankfurter.app (free, no key needed)
+async function tryFrankfurter(): Promise<number | null> {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const resp = await fetchWithTimeout('https://api.frankfurter.app/latest?from=USD&to=PKR');
+    if (!resp.ok) return null;
+    const text = await resp.text();
+    // frankfurter sometimes returns HTML when blocked
+    if (text.startsWith('<')) return null;
+    const data = JSON.parse(text);
+    const rate = data.rates?.PKR;
+    return typeof rate === 'number' ? rate : null;
+  } catch { return null; }
+}
 
-    const response = await fetch(
-      'https://api.frankfurter.app/latest?from=USD&to=PKR',
-      { signal: controller.signal }
-    );
-    clearTimeout(timeout);
+async function tryOpenErApi(): Promise<number | null> {
+  try {
+    const resp = await fetchWithTimeout('https://open.er-api.com/v6/latest/USD');
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const rate = data.rates?.PKR;
+    return typeof rate === 'number' ? rate : null;
+  } catch { return null; }
+}
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-    const data = await response.json();
-    const rate = data.rates.PKR;
-
-    if (!rate || typeof rate !== 'number') {
-      throw new Error('Invalid rate from API');
-    }
-
-    storeRate(rate);
-    return {
-      rate,
-      timestamp: new Date(),
-      source: 'api',
-    };
-  } catch {
-    // Try backup API: open.er-api.com (free, no key needed)
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
-
-      const response = await fetch(
-        'https://open.er-api.com/v6/latest/USD',
-        { signal: controller.signal }
-      );
-      clearTimeout(timeout);
-
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data = await response.json();
-      const rate = data.rates?.PKR;
-
-      if (!rate || typeof rate !== 'number') {
-        throw new Error('Invalid rate from backup API');
-      }
-
-      storeRate(rate);
-      return {
-        rate,
-        timestamp: new Date(),
-        source: 'api',
-      };
-    } catch {
-      // All APIs failed — return fallback
-      return {
-        rate: FALLBACK_RATE,
-        timestamp: new Date(),
-        source: 'fallback',
-      };
-    }
+/** Fetch USD/PKR rate from multiple sources. Falls back to hardcoded rate. */
+export async function fetchExchangeRate(): Promise<ExchangeRateResult> {
+  // 1. Check localStorage cache first
+  const stored = getStoredRate();
+  if (stored) {
+    return { rate: stored, timestamp: new Date(), source: 'fallback' };
   }
+
+  // 2. Try APIs in order
+  const rate = await tryOpenErApi() || await tryFrankfurter();
+
+  if (rate && rate > 0) {
+    storeRate(rate);
+    return { rate, timestamp: new Date(), source: 'api' };
+  }
+
+  // 3. All failed — return hardcoded fallback
+  return { rate: FALLBACK_RATE, timestamp: new Date(), source: 'fallback' };
 }
