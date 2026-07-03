@@ -13,8 +13,8 @@ import type { FilerStatus, CalculationResult } from '@/lib/types';
 type CalculatorMode = 'usd-to-pkr' | 'pkr-to-usd';
 
 const modeOptions: { value: CalculatorMode; label: string }[] = [
-  { value: 'usd-to-pkr', label: 'USD → PKR' },
-  { value: 'pkr-to-usd', label: 'PKR → USD' },
+  { value: 'usd-to-pkr', label: 'USD \u2192 PKR' },
+  { value: 'pkr-to-usd', label: 'PKR \u2192 USD' },
 ];
 
 function ModeToggle({
@@ -100,11 +100,6 @@ export default function CalculatorCard() {
       ? calculateBreakdown(usdAmount, effectiveRate, filerStatus)
       : null;
 
-  // Bank markup = difference between market rate and bank rate
-  const bankMarkup = usdAmount > 0 && effectiveRate > 0
-    ? usdAmount * effectiveRate * 0.03
-    : 0;
-
   const handleCopy = useCallback(() => {
     if (!result) return;
 
@@ -112,7 +107,7 @@ export default function CalculatorCard() {
       `SadaPay Banking Calculator`,
       `---`,
       `USD Amount: $${result.usdAmount}`,
-      `Exchange Rate: 1 USD = ${result.marketRate.toFixed(2)} PKR`,
+      `Exchange Rate: 1 USD = ${result.interbankRate.toFixed(2)} PKR`,
       `---`,
       `SadaPay Total: ${formatPKR(result.sadapayTotal)}`,
       `Bank Total: ${formatPKR(result.bankTotal)}`,
@@ -135,7 +130,7 @@ export default function CalculatorCard() {
           Banking Calculator
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Compare USD → PKR conversion fees
+          Compare USD \u2192 PKR conversion fees
         </p>
       </div>
 
@@ -153,7 +148,6 @@ export default function CalculatorCard() {
       {/* Input Section */}
       <div className="bg-white border border-gray-200 p-6 mb-4">
         <div className="space-y-4">
-          {/* Mode Toggle */}
           <ModeToggle value={mode} onChange={setMode} />
 
           <AmountInput
@@ -165,18 +159,7 @@ export default function CalculatorCard() {
           <FilerToggle value={filerStatus} onChange={setFilerStatus} />
         </div>
 
-        {/* Reverse mode hint */}
-        {result && isReverseMode && (
-          <p className="text-xs text-gray-400 mt-3 text-center">
-            USD Equivalent:{' '}
-            <span className="font-semibold text-sadapay-navy">
-              {formatUSD(usdAmount)}
-            </span>{' '}
-            at market rate
-          </p>
-        )}
-
-        {/* Live conversion display — shown in both modes */}
+        {/* Live conversion display */}
         {result && (
           <div className="mt-4 pt-4 border-t border-gray-100">
             <div className="flex items-center justify-center gap-4 text-sm">
@@ -186,16 +169,16 @@ export default function CalculatorCard() {
               <span className="text-lg font-bold text-sadapay-navy">
                 {isReverseMode ? formatPKR(inputAmount) : formatUSD(usdAmount)}
               </span>
-              <span className="text-gray-300">→</span>
+              <span className="text-gray-300">{'\u2192'}</span>
               <span className="text-gray-500">
                 {isReverseMode ? 'USD' : 'PKR'}
               </span>
               <span className="text-lg font-bold text-sadapay-navy">
-                {isReverseMode ? formatUSD(usdAmount) : formatPKR(result.sadapayPkr)}
+                {isReverseMode ? formatUSD(usdAmount) : formatPKR(result.basePkr)}
               </span>
             </div>
             <p className="text-xs text-gray-400 text-center mt-1">
-              at {isReverseMode ? 'market' : 'SadaPay'} rate · 1 USD = {effectiveRate.toFixed(2)} PKR
+              1 USD = {effectiveRate.toFixed(2)} PKR (interbank rate)
             </p>
           </div>
         )}
@@ -207,11 +190,10 @@ export default function CalculatorCard() {
           {/* SadaPay Column */}
           <div className="bg-white border border-gray-200 p-6">
             <FeeBreakdown
-              pkrAmount={result.sadapayPkr}
+              pkrAmount={result.basePkr}
               fee={result.sadapayFee}
-              wht={result.wht}
+              wht={result.sadapayWht}
               total={result.sadapayTotal}
-              bankMarkup={0}
               filerStatus={filerStatus}
               usdAmount={usdAmount}
             />
@@ -220,15 +202,15 @@ export default function CalculatorCard() {
           {/* Bank Comparison Column */}
           <div className="bg-white border border-gray-200 p-6">
             <BankComparison
-              pkrAmount={result.bankPkr}
+              pkrAmount={result.basePkr}
+              bankMarkup={result.bankMarkup}
+              networkFee={result.networkFee}
               fee={result.bankFee}
               wht={result.bankWht}
               total={result.bankTotal}
-              sadapayTotal={result.sadapayTotal}
               savings={result.savings}
               filerStatus={filerStatus}
               usdAmount={usdAmount}
-              bankMarkup={bankMarkup}
             />
           </div>
         </div>
@@ -242,7 +224,7 @@ export default function CalculatorCard() {
             onClick={handleCopy}
             className="h-11 px-6 text-sm font-semibold text-sadapay-navy bg-white border-2 border-sadapay-navy/20 hover:border-sadapay-navy transition-colors tracking-wide"
           >
-            {copied ? '✓ Copied!' : 'Copy Results'}
+            {copied ? '\u2713 Copied!' : 'Copy Results'}
           </button>
         </div>
       )}
@@ -250,9 +232,9 @@ export default function CalculatorCard() {
       {/* Footer / Disclaimer */}
       <div className="text-center px-4">
         <p className="text-xs text-gray-400 leading-relaxed">
-          Rates are indicative only. Actual exchange rates may vary.
-          SadaPay&apos;s rate is 10% better than the interbank rate.
-          Traditional banks charge ~3% markup on the interbank rate.
+          Both columns use the same interbank rate. SadaPay charges 6% international fee + WHT.
+          Traditional banks add 3% markup + 1.5% network fee + 6% international fee + WHT.
+          WHT calculated on gross total per FBR rules. Rates indicative only.
         </p>
       </div>
     </div>

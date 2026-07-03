@@ -1,10 +1,7 @@
-export const SADAPAY_FX_BONUS = 0.10; // SadaPay gives 10% better than interbank market
-export const BANK_MARKUP = 0.03; // 3% traditional bank markup on interbank rate
-export const INTNL_FEE_RATE = 0.06; // 6% for TRADITIONAL banks only
-export const INTNL_FEE_FLAT = 55; // Rs. 55 flat for small transactions (banks)
-export const INTNL_FEE_THRESHOLD = 800; // Rs. 800 threshold (banks)
+export const INTNL_FEE_RATE = 0.06; // International transaction fee (SadaPay & banks)
+export const INTNL_FEE_FLAT = 55; // Rs. 55 flat for small transactions (under threshold)
+export const INTNL_FEE_THRESHOLD = 800; // Rs. 800 threshold
+export const BANK_MARKUP_RATE = 0.03; // 3% markup banks add on interbank rate
+export const NETWORK_FEE_RATE = 0.015; // 1.5% Mastercard/Visa network fee (banks only)
 export const WHT_FILER = 0.05; // 5% for filers
 export const WHT_NONFILER = 0.10; // 10% for non-filers
-export const SADAPAY_INTNL_FEE = 0; // SadaPay: NO international transaction fee
-export const ATM_FEE = 250; // Rs. 250 international ATM fee
-export const CARD_ISSUANCE = 1724; // Rs. 1,724 card issuance

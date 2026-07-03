@@ -7,14 +7,14 @@ import type { FilerStatus } from '@/lib/types';
 
 interface BankComparisonProps {
   pkrAmount: number;
+  bankMarkup: number;
+  networkFee: number;
   fee: number;
   wht: number;
   total: number;
-  sadapayTotal: number;
   savings: number;
   filerStatus: FilerStatus;
   usdAmount: number;
-  bankMarkup: number;
 }
 
 function Row({
@@ -74,13 +74,14 @@ function Row({
 
 export default function BankComparison({
   pkrAmount,
+  bankMarkup,
+  networkFee,
   fee,
   wht,
   total,
   savings,
   filerStatus,
   usdAmount,
-  bankMarkup,
 }: BankComparisonProps) {
   const isEmpty = usdAmount === 0;
   const savingsRef = useRef<HTMLDivElement>(null);
@@ -112,7 +113,7 @@ export default function BankComparison({
           <Row
             label="Base Amount"
             value={formatPKR(pkrAmount)}
-            subtext="at bank markup rate"
+            subtext="at interbank rate (same as SadaPay)"
           />
           <Row
             label="Bank Markup"
@@ -120,14 +121,19 @@ export default function BankComparison({
             subtext="3% markup on interbank rate"
           />
           <Row
+            label="Network Fee"
+            value={formatPKR(networkFee)}
+            subtext="1.5% Mastercard/Visa network fee"
+          />
+          <Row
             label="International Fee"
             value={formatPKR(fee)}
-            subtext="6% of PKR amount"
+            subtext="6% of base amount"
           />
           <Row
             label="Withholding Tax"
             value={formatPKR(wht)}
-            subtext={`${filerStatus === 'filer' ? '5%' : '10%'} WTH`}
+            subtext={`${filerStatus === 'filer' ? '5%' : '10%'} on gross (base + all fees) — per FBR`}
           />
           <Row label="Total Payable" value={formatPKR(total)} isTotal />
 
@@ -144,7 +150,7 @@ export default function BankComparison({
                 {formatPKR(savings)}
               </p>
               <p className="text-xs text-green-600 mt-0.5">
-                compared to traditional banks
+                with SadaPay vs traditional banks
               </p>
             </div>
           )}

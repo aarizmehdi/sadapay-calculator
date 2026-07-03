@@ -1,16 +1,15 @@
 import {
-  SADAPAY_FX_BONUS,
-  BANK_MARKUP,
   INTNL_FEE_RATE,
   INTNL_FEE_FLAT,
   INTNL_FEE_THRESHOLD,
+  BANK_MARKUP_RATE,
+  NETWORK_FEE_RATE,
   WHT_FILER,
   WHT_NONFILER,
-  SADAPAY_INTNL_FEE,
 } from './constants';
 import type { FilerStatus, CalculationResult } from './types';
 
-function formatPKR(amount: number): string {
+export function formatPKR(amount: number): string {
   return new Intl.NumberFormat('en-PK', {
     style: 'currency',
     currency: 'PKR',
@@ -18,7 +17,7 @@ function formatPKR(amount: number): string {
   }).format(amount);
 }
 
-function formatUSD(amount: number): string {
+export function formatUSD(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -39,51 +38,62 @@ function calculateIntnlFee(pkrAmount: number): number {
   return pkrAmount * INTNL_FEE_RATE;
 }
 
+/**
+ * Calculate fee breakdown for both SadaPay and Traditional Bank.
+ *
+ * Both use the SAME interbank market rate for the base amount.
+ * Divergence comes from fees and markups applied below.
+ *
+ * SadaPay:
+ *   Base = USD × interbankRate
+ *   International Fee = 6% of Base (per SadaPay SOC)
+ *   WHT = 5%/10% of (Base + International Fee)
+ *   Total = Base + International Fee + WHT
+ *
+ * Traditional Bank:
+ *   Base = USD × interbankRate
+ *   Bank Markup = 3% of Base
+ *   Network Fee = 1.5% of Base (Mastercard/Visa)
+ *   International Fee = 6% of Base
+ *   WHT = 5%/10% of (Base + Bank Markup + Network Fee + International Fee)
+ *   Total = Base + Bank Markup + Network Fee + International Fee + WHT
+ */
 export function calculateBreakdown(
   usd: number,
   rate: number,
   filerStatus: FilerStatus
 ): CalculationResult {
-  const sadapayRate = rate * (1 + SADAPAY_FX_BONUS);
-  const bankRate = rate * (1 - BANK_MARKUP);
+  // Both use same interbank rate
+  const basePkr = usd * rate;
 
-  const sadapayPkr = usd * sadapayRate;
-  const bankPkr = usd * bankRate;
+  // --- SadaPay ---
+  const sadapayFee = calculateIntnlFee(basePkr);
+  const sadapayWhtBase = basePkr + sadapayFee;
+  const sadapayWht = calculateWHT(sadapayWhtBase, filerStatus);
+  const sadapayTotal = sadapayWhtBase + sadapayWht;
 
-  // SadaPay: NO international transaction fee
-  const sadapayFee = SADAPAY_INTNL_FEE;
-
-  // Traditional Bank: 6% international transaction fee
-  const bankFee = calculateIntnlFee(bankPkr);
-
-  // Withholding tax on (amount + fee) for both
-  const whtBase = sadapayPkr + sadapayFee;
-  const bankWhtBase = bankPkr + bankFee;
-  const wht = calculateWHT(whtBase, filerStatus);
+  // --- Traditional Bank ---
+  const bankMarkup = basePkr * BANK_MARKUP_RATE;
+  const networkFee = basePkr * NETWORK_FEE_RATE;
+  const bankFee = calculateIntnlFee(basePkr);
+  const bankWhtBase = basePkr + bankMarkup + networkFee + bankFee;
   const bankWht = calculateWHT(bankWhtBase, filerStatus);
+  const bankTotal = bankWhtBase + bankWht;
 
-  // Totals
-  const sadapayTotal = sadapayPkr + sadapayFee + wht;
-  const bankTotal = bankPkr + bankFee + bankWht;
-
-  // Savings
   const savings = bankTotal - sadapayTotal;
 
   return {
     usdAmount: usd,
-    marketRate: rate,
-    sadapayRate,
-    bankRate,
-    sadapayPkr,
-    bankPkr,
+    interbankRate: rate,
+    basePkr,
     sadapayFee,
-    bankFee,
-    wht,
-    bankWht,
+    sadapayWht,
     sadapayTotal,
+    bankMarkup,
+    networkFee,
+    bankFee,
+    bankWht,
     bankTotal,
     savings,
   };
 }
-
-export { formatPKR, formatUSD };

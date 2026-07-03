@@ -10,7 +10,6 @@ interface FeeBreakdownProps {
   fee: number;
   wht: number;
   total: number;
-  bankMarkup: number;
   filerStatus: FilerStatus;
   usdAmount: number;
 }
@@ -20,13 +19,11 @@ function Row({
   value,
   subtext,
   isTotal = false,
-  isFree = false,
 }: {
   label: string;
   value: string;
   subtext?: string;
   isTotal?: boolean;
-  isFree?: boolean;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
 
@@ -56,16 +53,14 @@ function Row({
           {label}
         </span>
         {subtext && (
-          <p className={`text-xs mt-0.5 ${isFree ? 'text-green-600 font-medium' : 'text-gray-400'}`}>{subtext}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{subtext}</p>
         )}
       </div>
       <span
         className={`font-mono ${
           isTotal
             ? 'text-xl font-bold text-sadapay-navy'
-            : isFree
-              ? 'text-sm font-semibold text-green-600'
-              : 'text-sm font-semibold text-sadapay-navy/80'
+            : 'text-sm font-semibold text-sadapay-navy/80'
         }`}
       >
         {value}
@@ -79,7 +74,6 @@ export default function FeeBreakdown({
   fee,
   wht,
   total,
-  bankMarkup,
   filerStatus,
   usdAmount,
 }: FeeBreakdownProps) {
@@ -102,24 +96,17 @@ export default function FeeBreakdown({
           <Row
             label="Base Amount"
             value={formatPKR(pkrAmount)}
-            subtext="at SadaPay FX rate (10% better than interbank)"
-          />
-          <Row
-            label="Bank Markup"
-            value={formatPKR(bankMarkup)}
-            subtext="No markup — SadaPay gives better rate"
-            isFree
+            subtext="at Mastercard Interbank Rate"
           />
           <Row
             label="International Fee"
             value={formatPKR(fee)}
-            subtext={fee === 0 ? 'Free — per SadaPay Schedule of Charges' : '6% of PKR amount'}
-            isFree={fee === 0}
+            subtext={`${fee === 0 ? 'Free' : '6% — per SadaPay Schedule of Charges'}`}
           />
           <Row
             label="Withholding Tax"
             value={formatPKR(wht)}
-            subtext={`${filerStatus === 'filer' ? '5%' : '10%'} WHT (${filerStatus}) — per SBP regulations`}
+            subtext={`${filerStatus === 'filer' ? '5%' : '10%'} on gross (base + fee) — per FBR`}
           />
           <Row label="Total Payable" value={formatPKR(total)} isTotal />
         </div>
