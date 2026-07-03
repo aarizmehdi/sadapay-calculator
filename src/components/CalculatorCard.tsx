@@ -146,7 +146,7 @@ export default function CalculatorCard() {
       </div>
 
       {/* Input Section */}
-      <div className="bg-white/95 border border-gray-200 p-6 mb-4">
+      <div className="bg-white border border-gray-200 p-6 mb-4">
         <div className="space-y-4">
           <ModeToggle value={mode} onChange={setMode} />
 
@@ -188,7 +188,7 @@ export default function CalculatorCard() {
       {result && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           {/* SadaPay Column */}
-          <div className="bg-white/95 border border-gray-200 p-6">
+          <div className="bg-white border border-gray-200 p-6">
             <FeeBreakdown
               pkrAmount={result.basePkr}
               fee={result.sadapayFee}
@@ -200,7 +200,7 @@ export default function CalculatorCard() {
           </div>
 
           {/* Bank Comparison Column */}
-          <div className="bg-white/95 border border-gray-200 p-6">
+          <div className="bg-white border border-gray-200 p-6">
             <BankComparison
               savings={result.savings}
               usdAmount={usdAmount}
